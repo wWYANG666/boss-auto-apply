@@ -1,0 +1,125 @@
+name: careerlens
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_DB: careerlens
+      POSTGRES_USER: careerlens
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-careerlens_dev_password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careerlens -d careerlens"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  ai-worker:
+    build:
+      context: ./services/ai-worker
+    environment:
+      PORT: 8001
+      AI_WORKER_MODE: offline
+      LLM_MODE: ${LLM_MODE:-offline}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+    ports:
+      - "127.0.0.1:8001:8001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/internal/v1/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  career-runner:
+    build:
+      context: ./apps/career-runner
+    environment:
+      RUNNER_HOST: 0.0.0.0
+      RUNNER_PORT: 43120
+      # Compose only verifies the business flow. Real BOSS browser execution
+      # remains a Windows-local Runner responsibility.
+      RUNNER_MODE: fake
+      RUNNER_DATA_DIR: /data
+      RUNNER_APPROVAL_SECRET: ${RUNNER_APPROVAL_SECRET:-}
+    ports:
+      - "127.0.0.1:43120:43120"
+    volumes:
+      - runner-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:43120/health"]
+      interval: 10s
+      timeout: 4s
+      retries: 12
+    restart: unless-stopped
+
+  core-api:
+    volumes:
+      - core-data:/app/data
+    build:
+      context: ./services/core-api
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      SERVER_ADDRESS: 0.0.0.0
+      DB_URL: jdbc:postgresql://postgres:5432/careerlens
+      DB_USER: careerlens
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-careerlens_dev_password}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      AI_WORKER_URL: http://ai-worker:8001
+      RUNNER_URL: http://career-runner:43120
+      RUNNER_ENCRYPTION_KEY: ${RUNNER_ENCRYPTION_KEY:-}
+      DEMO_DATA_ENABLED: "false"
+    ports:
+      - "127.0.0.1:18080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ai-worker:
+        condition: service_healthy
+      career-runner:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      args:
+        VITE_API_BASE_URL: /api/v1
+    ports:
+      - "127.0.0.1:80:80"
+    depends_on:
+      core-api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  core-data:
+  postgres-data:
+  redis-data:
+  runner-data:

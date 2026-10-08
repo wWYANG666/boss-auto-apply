@@ -1,0 +1,70 @@
+spring:
+  task:
+    scheduling:
+      pool:
+        size: 4
+      thread-name-prefix: careerlens-dispatch-
+  servlet:
+    multipart:
+      max-file-size: 8MB
+      max-request-size: 9MB
+  application:
+    name: careerlens-core-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/careerlens}
+    username: ${DB_USER:careerlens}
+    password: ${DB_PASSWORD:careerlens}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+careerlens:
+  cors-origins: ${CORS_ORIGINS:http://localhost:8888,http://127.0.0.1:8888}
+  auth:
+    access-token-hours: ${ACCESS_TOKEN_HOURS:24}
+  ai-worker:
+    base-url: ${AI_WORKER_URL:http://localhost:8001}
+    timeout-seconds: ${AI_WORKER_TIMEOUT_SECONDS:8}
+  runner:
+    base-url: ${RUNNER_URL:http://localhost:43120}
+    encryption-key: ${RUNNER_ENCRYPTION_KEY:}
+  demo-data:
+    enabled: ${DEMO_DATA_ENABLED:false}
+
+info:
+  app:
+    name: CareerLens Core API
+    version: 0.1.0

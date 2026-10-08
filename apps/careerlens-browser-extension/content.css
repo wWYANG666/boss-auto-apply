@@ -1,0 +1,14 @@
+#careerlens-boss-panel{position:fixed;right:18px;bottom:88px;z-index:2147483646;font:14px/1.4 system-ui,"Microsoft YaHei",sans-serif;color:#17352f}
+#careerlens-boss-panel *{box-sizing:border-box}
+#careerlens-boss-panel .cl-toggle{width:48px;height:48px;border:0;border-radius:16px;background:#167a68;color:#fff;font-weight:800;box-shadow:0 8px 24px #153d3530;cursor:pointer}
+#careerlens-boss-panel .cl-card{position:absolute;right:0;bottom:58px;width:260px;padding:14px;border:1px solid #dce7e3;border-radius:16px;background:#fff;box-shadow:0 16px 45px #17352f30}
+#careerlens-boss-panel header{display:flex;align-items:center;justify-content:space-between;font-size:16px}
+#careerlens-boss-panel .cl-close{border:0;background:transparent;font-size:22px;color:#71817d;cursor:pointer}
+#careerlens-boss-panel .cl-status{display:flex;align-items:center;gap:8px;margin:12px 0;color:#8b5d18}
+#careerlens-boss-panel .cl-status i{width:8px;height:8px;border-radius:50%;background:#d69530}
+#careerlens-boss-panel .cl-status.cl-online{color:#167a68}
+#careerlens-boss-panel .cl-status.cl-online i{background:#25a786}
+#careerlens-boss-panel nav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#careerlens-boss-panel nav button{padding:9px 8px;border:1px solid #dce7e3;border-radius:10px;background:#f6faf8;color:#17352f;cursor:pointer}
+#careerlens-boss-panel nav button:hover{border-color:#49a794;background:#eaf7f2}
+#careerlens-boss-panel small{display:block;margin-top:12px;color:#75827f;font-size:11px}

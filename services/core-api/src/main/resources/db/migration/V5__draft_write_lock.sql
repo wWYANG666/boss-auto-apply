@@ -1,0 +1,1 @@
+ALTER TABLE resume_draft ADD COLUMN lock_version BIGINT NOT NULL DEFAULT 0;

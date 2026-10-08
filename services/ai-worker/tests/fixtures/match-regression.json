@@ -1,0 +1,305 @@
+{
+  "description": "Synthetic regression fixtures. Not human-reviewed recruiting quality labels.",
+  "samples": [
+    {
+      "id": "positive-0",
+      "resume": "使用 Java 实现项目功能",
+      "requirement": "熟悉 Java",
+      "expected": "covered"
+    },
+    {
+      "id": "negative-zh-0",
+      "resume": "未使用过 Java",
+      "requirement": "熟悉 Java",
+      "expected": "missing"
+    },
+    {
+      "id": "negative-en-0",
+      "resume": "Never used Java",
+      "requirement": "Experience with Java",
+      "expected": "missing"
+    },
+    {
+      "id": "missing-0",
+      "resume": "负责文档排版与视觉设计",
+      "requirement": "熟悉 Java",
+      "expected": "missing"
+    },
+    {
+      "id": "alias-case-0",
+      "resume": "Used java in a project",
+      "requirement": "熟悉 Java",
+      "expected": "covered"
+    },
+    {
+      "id": "positive-1",
+      "resume": "使用 Spring Boot 实现项目功能",
+      "requirement": "熟悉 Spring Boot",
+      "expected": "covered"
+    },
+    {
+      "id": "negative-zh-1",
+      "resume": "未使用过 Spring Boot",
+      "requirement": "熟悉 Spring Boot",
+      "expected": "missing"
+    },
+    {
+      "id": "negative-en-1",
+      "resume": "Never used Spring Boot",
+      "requirement": "Experience with Spring Boot",
+      "expected": "missing"
+    },
+    {
+      "id": "missing-1",
+      "resume": "负责文档排版与视觉设计",
+      "requirement": "熟悉 Spring Boot",
+      "expected": "missing"
+    },
+    {
+      "id": "alias-case-1",
+      "resume": "Used spring boot in a project",
+      "requirement": "熟悉 Spring Boot",
+      "expected": "covered"
+    },
+    {
+      "id": "positive-2",
+      "resume": "使用 MySQL 实现项目功能",
+      "requirement": "熟悉 MySQL",
+      "expected": "covered"
+    },
+    {
+      "id": "negative-zh-2",
+      "resume": "未使用过 MySQL",
+      "requirement": "熟悉 MySQL",
+      "expected": "missing"
+    },
+    {
+      "id": "negative-en-2",
+      "resume": "Never used MySQL",
+      "requirement": "Experience with MySQL",
+      "expected": "missing"
+    },
+    {
+      "id": "missing-2",
+      "resume": "负责文档排版与视觉设计",
+      "requirement": "熟悉 MySQL",
+      "expected": "missing"
+    },
+    {
+      "id": "alias-case-2",
+      "resume": "Used mysql in a project",
+      "requirement": "熟悉 MySQL",
+      "expected": "covered"
+    },
+    {
+      "id": "positive-3",
+      "resume": "使用 Redis 实现项目功能",
+      "requirement": "熟悉 Redis",
+      "expected": "covered"
+    },
+    {
+      "id": "negative-zh-3",
+      "resume": "未使用过 Redis",
+      "requirement": "熟悉 Redis",
+      "expected": "missing"
+    },
+    {
+      "id": "negative-en-3",
+      "resume": "Never used Redis",
+      "requirement": "Experience with Redis",
+      "expected": "missing"
+    },
+    {
+      "id": "missing-3",
+      "resume": "负责文档排版与视觉设计",
+      "requirement": "熟悉 Redis",
+      "expected": "missing"
+    },
+    {
+      "id": "alias-case-3",
+      "resume": "Used redis in a project",
+      "requirement": "熟悉 Redis",
+      "expected": "covered"
+    },
+    {
+      "id": "positive-4",
+      "resume": "使用 Docker 实现项目功能",
+      "requirement": "熟悉 Docker",
+      "expected": "covered"
+    },
+    {
+      "id": "negative-zh-4",
+      "resume": "未使用过 Docker",
+      "requirement": "熟悉 Docker",
+      "expected": "missing"
+    },
+    {
+      "id": "negative-en-4",
+      "resume": "Never used Docker",
+      "requirement": "Experience with Docker",
+      "expected": "missing"
+    },
+    {
+      "id": "missing-4",
+      "resume": "负责文档排版与视觉设计",
+      "requirement": "熟悉 Docker",
+      "expected": "missing"
+    },
+    {
+      "id": "alias-case-4",
+      "resume": "Used docker in a project",
+      "requirement": "熟悉 Docker",
+      "expected": "covered"
+    },
+    {
+      "id": "positive-5",
+      "resume": "使用 Kubernetes 实现项目功能",
+      "requirement": "熟悉 Kubernetes",
+      "expected": "covered"
+    },
+    {
+      "id": "negative-zh-5",
+      "resume": "未使用过 Kubernetes",
+      "requirement": "熟悉 Kubernetes",
+      "expected": "missing"
+    },
+    {
+      "id": "negative-en-5",
+      "resume": "Never used Kubernetes",
+      "requirement": "Experience with Kubernetes",
+      "expected": "missing"
+    },
+    {
+      "id": "missing-5",
+      "resume": "负责文档排版与视觉设计",
+      "requirement": "熟悉 Kubernetes",
+      "expected": "missing"
+    },
+    {
+      "id": "alias-case-5",
+      "resume": "Used kubernetes in a project",
+      "requirement": "熟悉 Kubernetes",
+      "expected": "covered"
+    },
+    {
+      "id": "positive-6",
+      "resume": "使用 Linux 实现项目功能",
+      "requirement": "熟悉 Linux",
+      "expected": "covered"
+    },
+    {
+      "id": "negative-zh-6",
+      "resume": "未使用过 Linux",
+      "requirement": "熟悉 Linux",
+      "expected": "missing"
+    },
+    {
+      "id": "negative-en-6",
+      "resume": "Never used Linux",
+      "requirement": "Experience with Linux",
+      "expected": "missing"
+    },
+    {
+      "id": "missing-6",
+      "resume": "负责文档排版与视觉设计",
+      "requirement": "熟悉 Linux",
+      "expected": "missing"
+    },
+    {
+      "id": "alias-case-6",
+      "resume": "Used linux in a project",
+      "requirement": "熟悉 Linux",
+      "expected": "covered"
+    },
+    {
+      "id": "positive-7",
+      "resume": "使用 Python 实现项目功能",
+      "requirement": "熟悉 Python",
+      "expected": "covered"
+    },
+    {
+      "id": "negative-zh-7",
+      "resume": "未使用过 Python",
+      "requirement": "熟悉 Python",
+      "expected": "missing"
+    },
+    {
+      "id": "negative-en-7",
+      "resume": "Never used Python",
+      "requirement": "Experience with Python",
+      "expected": "missing"
+    },
+    {
+      "id": "missing-7",
+      "resume": "负责文档排版与视觉设计",
+      "requirement": "熟悉 Python",
+      "expected": "missing"
+    },
+    {
+      "id": "alias-case-7",
+      "resume": "Used python in a project",
+      "requirement": "熟悉 Python",
+      "expected": "covered"
+    },
+    {
+      "id": "positive-8",
+      "resume": "使用 TypeScript 实现项目功能",
+      "requirement": "熟悉 TypeScript",
+      "expected": "covered"
+    },
+    {
+      "id": "negative-zh-8",
+      "resume": "未使用过 TypeScript",
+      "requirement": "熟悉 TypeScript",
+      "expected": "missing"
+    },
+    {
+      "id": "negative-en-8",
+      "resume": "Never used TypeScript",
+      "requirement": "Experience with TypeScript",
+      "expected": "missing"
+    },
+    {
+      "id": "missing-8",
+      "resume": "负责文档排版与视觉设计",
+      "requirement": "熟悉 TypeScript",
+      "expected": "missing"
+    },
+    {
+      "id": "alias-case-8",
+      "resume": "Used typescript in a project",
+      "requirement": "熟悉 TypeScript",
+      "expected": "covered"
+    },
+    {
+      "id": "positive-9",
+      "resume": "使用 PostgreSQL 实现项目功能",
+      "requirement": "熟悉 PostgreSQL",
+      "expected": "covered"
+    },
+    {
+      "id": "negative-zh-9",
+      "resume": "未使用过 PostgreSQL",
+      "requirement": "熟悉 PostgreSQL",
+      "expected": "missing"
+    },
+    {
+      "id": "negative-en-9",
+      "resume": "Never used PostgreSQL",
+      "requirement": "Experience with PostgreSQL",
+      "expected": "missing"
+    },
+    {
+      "id": "missing-9",
+      "resume": "负责文档排版与视觉设计",
+      "requirement": "熟悉 PostgreSQL",
+      "expected": "missing"
+    },
+    {
+      "id": "alias-case-9",
+      "resume": "Used postgresql in a project",
+      "requirement": "熟悉 PostgreSQL",
+      "expected": "covered"
+    }
+  ]
+}

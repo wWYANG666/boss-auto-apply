@@ -1,0 +1,4 @@
+ALTER TABLE one_stop_run ADD COLUMN succeeded_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE one_stop_run ADD COLUMN failed_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE one_stop_run ADD COLUMN cancelled_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE one_stop_run ADD COLUMN attention_count INTEGER NOT NULL DEFAULT 0;

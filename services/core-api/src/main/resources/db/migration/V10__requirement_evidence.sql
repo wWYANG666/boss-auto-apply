@@ -1,0 +1,7 @@
+ALTER TABLE jd_requirement ADD COLUMN quote_text TEXT;
+ALTER TABLE jd_requirement ADD COLUMN quote_start INTEGER NOT NULL DEFAULT -1;
+ALTER TABLE jd_requirement ADD COLUMN quote_end INTEGER NOT NULL DEFAULT -1;
+ALTER TABLE jd_requirement ADD COLUMN extraction_confidence DOUBLE PRECISION NOT NULL DEFAULT 0;
+ALTER TABLE jd_requirement ADD COLUMN confirmed BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE match_run ADD COLUMN input_snapshot TEXT;
+ALTER TABLE match_run ADD COLUMN input_hash VARCHAR(64);

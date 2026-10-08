@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "CareerLens BOSS 面板",
+  "version": "0.1.0",
+  "description": "在BOSS直聘页面打开CareerLens职位发现、审核和自动执行中心。",
+  "permissions": ["storage"],
+  "host_permissions": ["http://127.0.0.1:18080/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.zhipin.com/*", "https://zhipin.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

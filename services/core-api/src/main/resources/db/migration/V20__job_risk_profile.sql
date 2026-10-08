@@ -1,0 +1,6 @@
+ALTER TABLE discovered_job ADD COLUMN company_size VARCHAR(120);
+ALTER TABLE discovered_job ADD COLUMN recruiter_online BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE discovered_job ADD COLUMN headhunter BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE discovered_job ADD COLUMN contacted BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE discovered_job ADD COLUMN risk_score INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE discovered_job ADD COLUMN risk_reasons_text TEXT NOT NULL DEFAULT '[]';

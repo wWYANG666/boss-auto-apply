@@ -1,0 +1,5 @@
+CREATE TABLE execution_policy (
+ user_id UUID PRIMARY KEY REFERENCES app_user(id),
+ paused BOOLEAN NOT NULL DEFAULT FALSE,
+ daily_limit INTEGER NOT NULL DEFAULT 20
+);
