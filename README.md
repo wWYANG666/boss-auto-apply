@@ -238,7 +238,7 @@ apps/career-runner/               本地平台 Runner
 apps/careerlens-browser-extension/ BOSS 页面入口扩展
 scripts/                          启动、验证与验收脚本
 infra/                            Nginx 等基础配置
-docs/                             实现记录、验收范围与参考资料
+docs/                             实现记录与验收范围
 ```
 
-进一步阅读：[Core API](services/core-api/README.md) · [AI Worker](services/ai-worker/README.md) · [实现记录](docs/implementation-progress.md) · [参考项目](docs/open-source-references.md)。
+进一步阅读：[Core API](services/core-api/README.md) · [AI Worker](services/ai-worker/README.md) · [实现记录](docs/implementation-progress.md)。

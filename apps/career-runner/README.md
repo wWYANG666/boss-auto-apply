@@ -49,7 +49,7 @@ Fully deterministic development and CI adapter. It supports discovery, applicati
 
 Connects to a configurable Streamable HTTP MCP endpoint. The default endpoint is `https://open-agent.liepin.com/mcp/user`; the token is read from `LIEPIN_MCP_TOKEN` and is never returned by the API. Tool names are configurable because third-party manifests and the remote server may evolve.
 
-Run an authenticated smoke test before enabling it. The GitHub wrapper that documented this endpoint is third-party metadata, and the referenced CLI repository does not currently provide a complete standard license for vendoring its source. This runner implements its own client instead.
+Run an authenticated smoke test before enabling it. Validate the tool schemas and response contract against the configured endpoint.
 
 ### BossBrowserAdapter
 
