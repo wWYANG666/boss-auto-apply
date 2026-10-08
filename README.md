@@ -1,120 +1,244 @@
 # CareerLens 职镜
 
-基于 Vue 3 / TypeScript、Spring Boot 21、PostgreSQL（本地可选 H2）、FastAPI 和本地 Runner 的求职工作区。
+面向个人使用的求职工作区，整合简历编辑、岗位匹配、优化建议和投递跟进。
 
-## 无数据上传版本
+使用 Vue 3 / TypeScript 构建界面，Spring Boot 3.4 / Java 21 管理业务，FastAPI 处理文档与评分，本地 Runner 负责招聘平台连接。
 
-本目录只包含源码、数据库结构迁移、配置模板和合成测试夹具，不包含原工作区的
-数据库、简历、账号、投递记录、截图、浏览器会话、Token、实际密钥或 Git 历史。
-首次启动后需要注册新账号。测试中的姓名、联系方式、学校和项目均为合成测试内容。
-`services/ai-worker/app/data/skill_aliases.json` 是解析规则词典，不是用户业务数据。
+仓库提供脱敏源码、配置模板和合成测试数据。首次运行需要注册账号，创建或导入自己的简历；账号、岗位和投递记录从空状态开始。
 
-上传方法见 [UPLOAD.md](UPLOAD.md)。请从本目录初始化新的 Git 仓库。
-配置模板中的数据库密码仅用于本机开发；实际密钥需自行生成并放在被忽略的本地文件中。
+## 主要功能
 
-## 当前数据模式
+| 模块 | 功能 |
+| --- | --- |
+| 简历工作区 | 动态章节、自动保存、版本发布、历史比较与恢复、PDF 导出 |
+| 文档导入 | TXT、PDF、DOCX 解析，字段来源追踪和人工确认 |
+| 岗位匹配 | JD 要求提取、技能与经历证据匹配、评分和缺失项展示 |
+| 优化建议 | 无 JD 草稿体检、按岗位定向优化、逐条审核和应用 |
+| 岗位发现 | 关键词与薪资筛选、招聘者与公司过滤、可选通勤筛选 |
+| 任务管理 | 审批、暂停、恢复、终止、执行状态持久化和结果核对 |
+| 投递跟进 | 手动记录、阶段看板、时间线、后续行动和业务备份恢复 |
 
-优化实施记录见 [implementation-progress.md](docs/implementation-progress.md)。
-已推进M1–M7主功能：动态简历、导入确认、服务端PDF、统一评分、Provider、后台Outbox、跟进及业务备份恢复。未完成的现场验收与增强项明确列在实施记录中，不宣称全部生产场景已验收。
+### 使用流程
 
-本地Runner现需要在设置页配对。Core先配置独立的RUNNER_ENCRYPTION_KEY
-（至少32个随机字符，后续保持不变），再读取本机Runner数据目录中的pairing.json，
-在两分钟内提交配对码。业务命令按用户、设备令牌和签名校验。
-不要将配对码、设备文件或加密密钥加入版本库。
+1. 注册账号，创建或导入简历，核对解析结果。
+2. 编辑并发布简历版本，选择目标岗位或录入 JD。
+3. 查看匹配证据和优化建议，审核后应用到新版本。
+4. 配置本地 Runner 后连接平台，发现并筛选岗位。
+5. 审核岗位、简历版本和招呼语，再批准执行。
+6. 核对执行结果，在投递看板中继续跟进。
 
-前端不再包含内置简历、公司、岗位、评分、建议、投递记录或模拟任务。首次使用请注册账号；所有业务操作走真实 Core API，空账号显示空状态。后端不再初始化演示数据，也不再在执行器离线时返回示例岗位。
+## 系统组成
 
-AI Worker 默认使用离线规则处理用户输入；这属于实际解析与评分，不是示例数据。可以在服务端配置兼容模型供应商。平台 Runner 默认保留测试模式用于单元测试，但真实工作区会拒绝测试模式的岗位和回执。
-
-## 启动
-
-要求 Node.js 24、JDK 21、Python 3.11+。Windows：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\start-dev.ps1
+```mermaid
+flowchart LR
+    Web[Vue 3 前端] --> Core[Spring Boot Core API]
+    Core --> DB[(H2 / PostgreSQL)]
+    Core --> AI[FastAPI AI Worker]
+    Core --> Runner[本地 Career Runner]
+    Runner --> Platforms[BOSS / 猎聘]
 ```
 
-打开 http://127.0.0.1:8888 注册新账号。API 文档位于 http://127.0.0.1:18080/swagger-ui.html 。
+| 组件 | 职责 |
+| --- | --- |
+| Web | 简历编辑、匹配报告、审核和任务管理界面 |
+| Core API | 账号隔离、业务数据、简历版本、审批及后台任务 |
+| AI Worker | 文档解析、规则评分、优化建议和 PDF 生成 |
+| Career Runner | 本机浏览器会话、平台适配、串行执行和回执核验 |
+| 数据库 | Windows 本地模式使用 H2；Docker 模式使用 PostgreSQL |
+
+Redis 随 Docker 环境提供，目前作为预留服务；后台任务通过数据库 Outbox 推进。
+
+## 快速开始：Windows
+
+### 环境要求
+
+| 工具 | 要求 |
+| --- | --- |
+| Git | 用于下载仓库 |
+| Node.js | 24 或更高版本；CI 使用 24 |
+| Java | JDK 21；可通过 `JAVA_HOME` 指定安装目录 |
+| Python | 3.11 或更高版本；CI 使用 3.12 |
+
+首次启动需要联网安装 npm、Python 和 Maven 依赖。项目自带 Maven Wrapper，无需单独安装 Maven。
+
+### 下载并启动
+
+在希望存放项目的目录打开 PowerShell。只复制代码块内部的命令，不复制首尾的 Markdown 标记。
 
 ```powershell
-.\scripts\start-dev.ps1 -Action status
-.\scripts\start-dev.ps1 -Action stop
+git clone https://github.com/wWYANG666/BOSS.git
+Set-Location .\BOSS
+powershell -ExecutionPolicy Bypass -File .\scripts\start-dev.ps1 -OpenBrowser
 ```
 
-本地默认使用 services/core-api/data/careerlens.mv.db 持久化。Docker 模式使用 PostgreSQL：
+如果已下载源码，进入项目根目录后只执行启动命令。根目录中应能看到 `package.json`、`scripts/` 和 `README.md`。
+
+脚本会安装前端与 Runner 依赖、创建 Python 虚拟环境，并启动各个服务。默认使用本地 H2、离线规则和测试模式 Runner，可以先使用简历、JD 匹配与手动投递管理功能。
+
+| 服务 | Windows 本地地址 |
+| --- | --- |
+| Web 界面 | [http://127.0.0.1:8888](http://127.0.0.1:8888) |
+| Core API 文档 | [http://127.0.0.1:18080/swagger-ui.html](http://127.0.0.1:18080/swagger-ui.html) |
+| AI Worker 文档 | [http://127.0.0.1:8001/docs](http://127.0.0.1:8001/docs) |
+| Runner 健康检查 | [http://127.0.0.1:43120/health](http://127.0.0.1:43120/health) |
+
+### 查看状态与停止服务
+
+以下命令均在项目根目录执行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\start-dev.ps1 -Action status
+powershell -ExecutionPolicy Bypass -File .\scripts\start-dev.ps1 -Action stop
+```
+
+也可以双击 `启动CareerLens.bat` 或 `停止CareerLens.bat`。当前启动批处理使用默认测试 Runner 模式。
+
+安装过依赖后可使用 `-SkipInstall` 加快启动。修改服务环境变量后，需要先停止服务，再重新启动。
+
+## Docker 启动
+
+先安装并启动 Docker Engine / Docker Desktop。在项目根目录准备配置文件；已有 `.env` 时保留原配置：
+
+```powershell
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+```
+
+编辑 `.env`，修改开发用数据库密码，并为 `RUNNER_APPROVAL_SECRET`、`RUNNER_ENCRYPTION_KEY` 配置相互独立、至少 32 个字符的随机值。然后启动：
 
 ```powershell
 docker compose up --build -d
 ```
 
-Docker 引擎必须已运行。Compose中的Runner固定为fake，仅用于业务流验收，不具备真实BOSS浏览器能力；真实BOSS操作只由Windows本机Runner执行。Redis目前为预留基础设施，业务流程尚未使用它作为队列或缓存。
+Docker 模式的 Web 地址是 [http://127.0.0.1](http://127.0.0.1)，Core API 文档仍位于 [18080 端口](http://127.0.0.1:18080/swagger-ui.html)。数据库及文件通过命名卷持久化。
 
-## 已接通的流程
+```powershell
+docker compose ps
+docker compose logs --tail 100
+docker compose down
+```
 
-- 注册、登录、退出、令牌失效处理与账号数据隔离。
-- 空白简历创建、JSON 导入、复制、删除、自动保存、发布、历史版本恢复和差异接口。
-- TXT/PDF/DOCX导入产生字段候选与原文位置；用户确认后再发布。扫描PDF需先OCR。
-- 导入可自动回填姓名、联系方式、照片、教育、工作/实习/在校经历、项目、优势、证书、语言能力和技能；支持章节标题与首条内容粘在同一行的PDF文本层，编辑器会标出识别依据与低置信度字段。
-- 已导入简历可在编辑器中使用保存的原文重新识别，结果写入新草稿修订并重新进入待核对状态，不修改历史发布版本。
-- 优化建议支持两条链路：直接对未发布草稿进行事实约束体检，或结合岗位JD生成定向建议；采用草稿建议时使用修订号检查，避免覆盖并发修改。
-- PDF已提供服务端生成、中文字体嵌入、不可变产物哈希与鉴权下载；浏览器打印仍可用于草稿。
-- 创建/选择 JD、正文版本发布、要求提取、重要性校正、指定简历版本匹配。
-- 动态匹配矩阵、原文证据、建议生成、采用/忽略/编辑、应用为新版本。
-- 手动投递记录、看板拖动与列表阶段修改、刷新持久化。
-- JSON业务备份与空账号恢复：简历、JD、报告、建议、投递、时间线等；排除凭据、活动任务命令和文件二进制。文件目录需另随数据库物理备份。
-- 平台连接实际检查、岗位发现、审核确认、执行任务同步及未知结果核对。
+Compose 中的 Runner 固定为 `fake`。真实工作区会拒绝测试模式的岗位和回执；真实 BOSS 浏览器执行需要 Windows 本机 Runner。
 
-## 新增配置
+## 配置说明
 
-- PDF_FONT_PATH：可嵌入的中文TTF/TTC字体。Windows自动检测simhei.ttf；Linux容器安装文泉驿字体。
-- LLM_MODE：offline或online，默认offline。
-- LLM_BASE_URL / LLM_API_KEY / LLM_MODEL：仅在线模式需要，密钥保留在服务端环境。
-- CareerLens任务采用数据库Outbox后台推进；不依赖用户保持浏览器开启。
-- 一条龙提供“暂停并保留”和“彻底终止”：暂停保留当前任务的检查点与已发现岗位，终止会取消尚未完成的发现命令。新任务始终重新向平台搜索，不复用旧任务或Runner短时缓存。
-- 职位发现由Core持久化运行状态，页面刷新后会恢复同一批次；长搜索没有前端两分钟截止时间。登录、验证码或页面验证中断时批次标记为“部分完成”，保留已确认岗位并明确列出中断城市和页码，不会被解释为搜索完成。
-- BOSS职位发现每轮最多检测150个唯一候选，搜索返回和一条龙目标均允许1～150；每日批准上限最高150，并按北京时间展示系统记录的已占用与剩余额度。官方客户端的手动沟通仍以BOSS平台实时限制为准。
-- BOSS会话探测区分已登录、明确退出和暂时无法确认。连接或接口短暂异常会先重连并重试，只有明确退出才打开登录窗口；发送前仍要求账号身份确认成功。
-- Runner任务状态保存在本机SQLite；旧JSONL仅作为一次性迁移源，可在设置页确认无活动任务后清理。
-- local配置每天04:10生成H2一致性备份并保留最近7份，设置页可立即备份、查看PDF/Runner占用并检查业务备份引用完整性。
-- 设置页可暂停后续提交、设置每日批准上限、轮换或撤销设备凭据。
-- 设置页可显式选择首条招呼语使用的发布简历、默认风格、最大字数和禁用词；空白简历不能参与生成。
-- BOSS审核计划会生成项目证明型、技术匹配型和简短提问型三条候选，候选绑定简历项目/技能证据并经过隐私、禁用词和100字校验。
-- 招呼语生成器会清洗BOSS原标题、按岗位类型选择项目与事实、限制技能必须属于该项目，并采用句子级降级而非截断字符；默认技术匹配型、目标85字。
-- BOSS只发送审核后的招呼语，不自动发送简历或继续聊天；发送成功后投递记录标记为“手机端跟进”。已有会话保持原规则：相同文本已存在则核验成功，否则补发本次审核文本。
-- 版本发布接口需baseRevision；发生草稿冲突时先保留JSON或重新加载合并。
-- 已被匹配报告引用的JD要求集保持冻结，修改需先创建新JD版本。
+Windows 启动脚本使用当前 PowerShell 的环境变量；普通 `.env` 文件不会自动为后端和 Runner 注入配置。Docker Compose 使用根目录 `.env` 进行变量替换。
 
-## 平台执行边界
+| 变量 | 用途 |
+| --- | --- |
+| `RUNNER_APPROVAL_SECRET` | Runner 审批签名密钥；真实模式要求至少 32 个字符 |
+| `RUNNER_ENCRYPTION_KEY` | Core 保存设备凭据的加密密钥；配对要求至少 32 个字符，并保持稳定 |
+| `BROWSER_EXECUTABLE_PATH` | 可选的 Chrome / Edge 可执行文件路径 |
+| `BOSS_BROWSER_MODE` | 默认 `auto`；登录使用可见窗口，正常执行使用后台浏览器 |
+| `BOSS_CITY_CODES` | 可选的城市名称与平台编码映射；未识别城市时补充配置 |
+| `AMAP_WEB_SERVICE_KEY` | 可选的高德 Web 服务密钥，用于地址解析与通勤计算 |
+| `LIEPIN_MCP_TOKEN` | 猎聘 MCP 连接令牌 |
+| `LLM_MODE` | 默认 `offline`；设为 `online` 启用在线优化建议 |
+| `LLM_BASE_URL` | 在线模型 API 前缀，客户端会附加 `/chat/completions` |
+| `LLM_API_KEY` / `LLM_MODEL` | 在线模型服务密钥与模型名称 |
+| `PDF_FONT_PATH` | 可嵌入的中文 TTF / TTC 字体路径 |
 
-真实连接需要本机设置 RUNNER_MODE=real、RUNNER_REAL_PLATFORM=true，并完成 BOSS 浏览器登录或猎聘 MCP Token 配置。BOSS审核通过后只发起沟通并发送已审核招呼语，不点击“发简历”或发送简历卡片；猎聘使用平台侧简历。本地PDF不会自动冒充平台附件。Core 到 Runner 默认是本机连接。
+配置模板见根目录及各服务目录下的 `.env.example`。模板中的开发密码与占位符需要按实际环境替换。
 
-BOSS真实模式使用 `scripts/start-dev.ps1 -Action stop` 停止测试Runner后，以 `scripts/start-dev.ps1 -RealRunner -SkipInstall` 启动。启动前需设置稳定的 `RUNNER_APPROVAL_SECRET`、`RUNNER_ENCRYPTION_KEY` 和 `BOSS_CITY_CODES`；设置页的“检查服务连接”会显示浏览器、登录和城市配置诊断。Runner默认使用`BOSS_BROWSER_MODE=auto`：首次登录和验证码使用可见窗口，正常筛选与投递使用最小化的后台浏览器。实验性`headless`模式在真实验证中可能触发BOSS 36/37风控，因此不作为默认值。
+### 在线优化建议
 
-岗位发现支持包含关键词及最少命中数、排除关键词、排除公司、薪资区间、招聘者活跃度、猎头过滤、同公司/同招聘者冷却天数和最大结果数。设置页可启用Dry-run，仅完成岗位身份与页面预检，不发送消息或简历。真实提交前Runner会执行随机间隔与批次暂停；平台提示操作频繁或达到沟通上限时立即暂停。批准摘要有效期为30分钟，以覆盖串行节流和人工暂停；过期批准不会静默续期，必须重新审核。
+默认使用本地规则，无需模型服务密钥。在线建议使用兼容 Chat Completions 和 JSON Schema 输出的模型服务，需要同时配置 `LLM_MODE=online`、`LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL`，再重启服务。
 
-岗位卡和审核页会显示基于岗位文本的风险提示、公司规模、招聘者活跃度以及同公司/同招聘者历史任务次数；风险提示不是工商征信结论。通勤筛选支持直线、驾车和步行，需配置高德Web服务Key `AMAP_WEB_SERVICE_KEY`，使用官方地理编码与路径规划接口。设置页可创建和切换独立BOSS账号profile，账号之间不共享Cookie。`apps/careerlens-browser-extension`提供BOSS页面浮动入口，扩展本身不会绕过CareerLens审核直接投递。
+开启在线模式后，相关简历片段与岗位要求会发送给配置的模型服务。模型建议仍需用户核对；服务不可用或结果不合规时回退到离线规则。文档解析、规则评分和 PDF 生成仍在本地处理。
 
-Windows也可以直接双击仓库根目录的`启动CareerLens.bat`，它会安装所需项目依赖，以默认测试Runner模式启动服务并打开Web；使用`停止CareerLens.bat`停止脚本管理的进程。真实Runner需另行配置密钥、平台登录和设备配对后通过上述命令启用。
-真实模式使用已构建的稳定Runner，不启用源码热重载；点击BOSS“连接/检查”后才创建独立浏览器并打开官方登录页，避免Edge启动阶段遗留`about:blank`窗口。
+## 启用真实平台 Runner
 
-登录页提供“保存密码”和“自动登录”两个独立选项：保存密码调用浏览器原生凭据管理器，不写入项目存储；自动登录在此浏览器保存30天登录令牌，退出登录、撤销会话或令牌过期后立即失效。BOSS登录状态由独立浏览器用户目录持久化。
+完成首次本地启动并安装依赖后，再进行平台配置：
 
-BOSS/猎聘页面、接口权限、平台简历与本地简历文件绑定仍需在实际账号中逐项验证。猎聘投递接口使用平台侧简历，当前不应宣称上传了本地PDF。仅部署在个人电脑或受控私有环境，不建议直接暴露 Runner 到公网。
+1. 配置两个相互独立的随机密钥：`RUNNER_APPROVAL_SECRET` 和 `RUNNER_ENCRYPTION_KEY`。
+2. 停止默认服务，再使用真实 Runner 模式启动。
+3. 读取本机配对文件中的码，在设置页完成设备配对。
+4. 点击平台的“连接 / 检查”，完成浏览器登录和必要的人工验证。
+5. 选择已发布且包含项目证据的简历，发现岗位并审核执行计划。
 
-## 验证
+<details>
+<summary>Windows 首次生成并保存随机密钥</summary>
+
+仅首次配置时执行。已有密钥应继续使用；更换加密密钥会影响已保存设备凭据的解密。以下写法兼容 Windows PowerShell 5.1：
+
+```powershell
+function New-CareerLensSecret {
+    $bytes = New-Object byte[] 32
+    $rng = [Security.Cryptography.RandomNumberGenerator]::Create()
+    try {
+        $rng.GetBytes($bytes)
+        [Convert]::ToBase64String($bytes)
+    } finally {
+        $rng.Dispose()
+    }
+}
+
+$env:RUNNER_APPROVAL_SECRET = New-CareerLensSecret
+$env:RUNNER_ENCRYPTION_KEY = New-CareerLensSecret
+[Environment]::SetEnvironmentVariable('RUNNER_APPROVAL_SECRET', $env:RUNNER_APPROVAL_SECRET, 'User')
+[Environment]::SetEnvironmentVariable('RUNNER_ENCRYPTION_KEY', $env:RUNNER_ENCRYPTION_KEY, 'User')
+```
+
+密钥保存在当前 Windows 用户的环境变量中，后续新开的终端可以读取。不要将生成的密钥加入版本库。
+
+</details>
+
+在已配置密钥的 PowerShell 中，从项目根目录执行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\start-dev.ps1 -Action stop
+powershell -ExecutionPolicy Bypass -File .\scripts\start-dev.ps1 -RealRunner -SkipInstall -OpenBrowser
+```
+
+未配对的 Runner 会生成 `apps/career-runner/.runner-data/pairing.json`，配对码有效期为两分钟；过期时重启 Runner 生成新码。一个 Runner 绑定一个 Core 用户。
+
+真实模式也支持从被 Git 忽略的 `apps/career-runner/.runner-data/start-real.env.cmd` 读取白名单配置；当前进程的环境变量优先。
+
+### 平台行为与当前范围
+
+- **BOSS**：发送审核后的招呼语并发起沟通，后续在手机端跟进；当前流程不自动发送简历附件或继续聊天。
+- **猎聘**：通过 MCP 适配器使用平台侧简历，接口和回执仍需在实际账号中逐项验证。
+- **人工处理**：登录、手机确认、验证码和平台页面变化可能需要用户处理。
+- **结果核对**：无法确认发送结果时记录为未知结果，核对后再决定是否重试。
+- **运行环境**：适合个人电脑或受控私有环境，Runner 默认只监听本机地址。
+
+## 数据与隐私
+
+| 内容 | 存储位置或方式 |
+| --- | --- |
+| Windows 本地数据库 | `services/core-api/data/careerlens.mv.db` |
+| 浏览器会话、Runner 密钥与任务日志 | `apps/career-runner/.runner-data/` |
+| Docker 数据 | PostgreSQL、Core、Runner 等命名卷 |
+| 解析规则词典 | `services/ai-worker/app/data/skill_aliases.json`，随源码提供 |
+
+仓库不包含真实简历、业务数据库、账号、投递记录、浏览器会话或实际密钥。测试文件使用合成资料。
+
+JSON 业务备份包含简历、JD、报告和投递等业务记录；恢复目标必须是空账号。会话、设备凭据、活动任务命令和文件二进制不会随业务备份恢复。完整备份需同时保存数据库和产物文件。
+
+`.gitignore` 已排除常见运行数据和敏感文件；请在提交前检查文件列表。上传说明见 [UPLOAD.md](UPLOAD.md)。
+
+## 开发与验证
+
+在项目根目录执行完整验证；`-SkipInstall` 适用于已安装依赖的环境：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1 -SkipInstall
 ```
 
-脚本检查前端构建、Core 测试与打包、AI Worker 测试/Ruff/mypy、Runner 测试/类型检查、Compose 静态配置，以及独立数据库下的浏览器端到端测试。
+验证脚本覆盖前端构建、Core API 测试、AI Worker 测试与静态检查、Runner 测试、Compose 配置和隔离数据库下的浏览器流程。CI 定义见 [.github/workflows/ci.yml](.github/workflows/ci.yml)。
 
-scripts/fullstack-qa.mjs 自动启动临时 Core、AI Worker 与前端，在内存 H2 中注册验收账号；结束后终止子进程，测试记录不会写入日常工作区。使用端口18084、18001、41731；设置JAVA_HOME和可选PLAYWRIGHT_BROWSER_PATH。
+本次脱敏版本已通过简历解析回归测试 6 项、Core API 集成测试 23 项。其他验证记录和待验收项见 [docs/verification.md](docs/verification.md)。扫描 PDF 需要先进行 OCR；复杂文档、在线模型输出质量及真实平台兼容性仍需按实际输入验证。
 
-最新范围说明见 [验收说明](docs/verification.md)。构建和测试通过不等于真实招聘平台已完成现场验收。
+## 项目目录
 
-## 数据清理
+```text
+src/                              Vue 界面与状态管理
+services/core-api/                Spring Boot 业务 API 与数据库迁移
+services/ai-worker/               FastAPI 解析、评分、建议与 PDF 服务
+apps/career-runner/               本地平台 Runner
+apps/careerlens-browser-extension/ BOSS 页面入口扩展
+scripts/                          启动、验证与验收脚本
+infra/                            Nginx 等基础配置
+docs/                             实现记录、验收范围与参考资料
+```
 
-2026-09-07 已确认本地数据库仅含历史演示账号。清理前备份位于 services/core-api/data/careerlens-before-cleanup-20260907.mv.db，旧演示账号及其关联记录已从日常库移除。备份保留，可在停服后恢复。迁移V3对其他已有部署仅归档已知演示账号，避免删除后来编辑的内容。
-
-测试用数据仅保留在 tests 和专用验收脚本中。不要提交 .env、数据库文件、真实简历、浏览器会话、Token 或密钥到版本库。
+进一步阅读：[Core API](services/core-api/README.md) · [AI Worker](services/ai-worker/README.md) · [实现记录](docs/implementation-progress.md) · [参考项目](docs/open-source-references.md)。
